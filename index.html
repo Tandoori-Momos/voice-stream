@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+</head>
+
+
+
+
+<style type="text/css">
+	.bg {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+	}
+</style>
+<body>
+<div id = "bg-holder"></div>
+<div id = "code"></div>
+<button id = "ok" onclick="start(event)">Inject!</button>
+</body>
+<script type="text/javascript">
+	
+
+	var SpeechRecognition = webkitSpeechRecognition || SpeechRecognition
+	var bt = document.getElementById("ok");
+
+	var index;
+	var val = {}; // Global Variables for Attributes
+	var key	= {}; // Global Variable for Arrays
+
+	val.width = '10';
+
+
+	var speech = new SpeechRecognition();
+	var recognizing = false;
+
+	speech.continuous = false;
+	speech.interimResults = false;
+	speech.lang = 'en-US';
+
+	speech.onstart = function() {
+		recognizing = true;
+	}
+
+	speech.onend = function() {
+		recognizing = false;
+	}
+
+	speech.onresult = function(event) {
+		for (var i = event.resultIndex; i < event.results.length; i++)
+		{
+			if (event.results[i].isFinal) {
+				var res = event.results[i][0].transcript;
+			}
+		}
+
+		var str = res;
+		var words = res.split(" ");
+		console.log(words);
+
+		for(var i = 0; i < words.length + 1; i++)
+		{
+			if (words[i] == "box") {
+
+				var index = words.indexOf("of");
+				val.width = words[index+1];
+				val.height = words[index+3];
+
+
+				Box();
+			}
+
+
+			if (words[i] == "change") {
+				if (words[i+1] == "background") {
+					var index = words.indexOf("to");
+					val.color = words[index+1];
+
+					ChangeBack();
+				}
+			};
+		}
+	
+
+
+	function Box() {
+		
+		var codeElement = document.getElementById("code");
+		var code = '<div class = "box" style = "width: '+val.width+'px; height: '+val.height+'px; background: #333;">Hello</div>';
+		
+		var pre = codeElement.innerHTML;
+		codeElement.innerHTML = pre+code;	
+
+	
+
+	}
+
+	function ChangeBack() {
+		var codeElement = document.getElementById("bg-holder");
+		var code = '<div class = "bg" style ="background: '+val.color+';"></div>';
+		
+		codeElement.innerHTML = code;	
+
+
+	}
+
+		
+	}
+
+	speech.onerror = function(event) {
+		console.log("Oops " + event.error);
+	}
+
+	function start(event) {
+		if (recognizing) {
+			speech.stop();
+		}
+
+		speech.start();
+	}
+
+
+
+</script>
+</html>
